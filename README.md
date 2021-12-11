@@ -2,6 +2,7 @@
 
 ## Список домашних заданий
 1. [CAP теорема](#cap)
+2. [Варианты установки MongoDB](#install)
 
 ------
 ------
@@ -68,3 +69,79 @@ _<a name="cap"><h3>ДЗ 1: CAP теорема</h3></a>_
 1. [MongoDB documentation. Causal consistency read write concerns](https://docs.mongodb.com/manual/core/causal-consistency-read-write-concerns/) 
 2. [Bigdata school: CAP-теорема](https://www.bigdataschool.ru/wiki/cap)
 3. [Bigdata school: Критика CAP-теоремы. Теорема PACELC](https://www.bigdataschool.ru/blog/cap-alternatives-for-nosql-and-big-data.html)
+
+-----
+-----
+
+_<a name="cap"><h3>ДЗ 2: Варианты установки MongoDB</h3></a>_
+
+### Создание и настройка среды в Google Cloud Platform
+
+1. Был создан проект в Google Cloud Platform: **mongodb2021-19930326**
+2. Установлен на рабочей машине **gcloud**
+3. Подключение инстанса VM через gcloud beta compute к созданному проекту (ОС Ubuntu 20.04)
+4. ssh ключ был автоматически подгружен в метадату GCP и на виртуальную машину + добавлена настройка алиаса gcp для быстрого подключения к виртуальной машине через ssh
+
+### Установка инстанса **Mongodb v4.4** :
+1) Загрузка и установка стабильной версиии пакета MongoDB:
+   ```console
+   wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add - && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list && sudo apt-get update && sudo apt-get install -y mongodb-org
+   ```
+2) Создание спейсов для хранения данных и конфигураций MongoDB:
+   ```console
+   sudo mkdir /home/dinora_ianbarisova/mongo && sudo mkdir /home/dinora_ianbarisova/mongo/db1 && sudo chmod 777 /home/dinora_ianbarisova/mongo/db1
+   ```
+3) Делаем форк демона MongoDB:
+   ```console
+   mongod --dbpath /home/dinora_ianbarisova/mongo/db1 --port 27001 --fork --logpath /home/dinora_ianbarisova/mongo/db1/db1.log --pidfilepath /home.dinora_ianbarisova/mongo/db1/db1.pid
+   ``` 
+4) Подключение к БД командой:
+   ```console
+   mongo --port 27001
+   ```
+5) Создание рутового пользователя:
+   ```console
+    use admin;
+    db.createUser( { user: "root", pwd: "otus$123", roles: [ "userAdminAnyDatabase", "dbAdminAnyDatabase", "readWriteAnyDatabase" ] } )
+   ```
+6) Останавливаем демона монги и запускаем заново, но с флагом требования аутентификации:
+   ```console
+   mongod --dbpath /home/mongo/db1 --port 27001 --fork --logpath /home/mongo/db1/db1.log --pidfilepath /home/mongo/db1/db1.pid --bind_ip_all --auth
+   ```
+7) Теперь для подключения к текущему сервису монги необходимо использовать команду:
+   ```console
+   mongo -u root -p otus\$123 --authenticationDatabase admin --port 27001
+   ```
+### Запуск **MongoDB v5.0** в docker-контейнере
+
+1) Установка докера:
+   ```console
+   sudo apt-get update && sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && sudo apt-key fingerprint 0EBFCD88 && sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+   ```
+2) Установка docker-compose:
+   ```console
+   sudo apt install docker-compose -u
+   ```
+3) Скопировала файл docker-compose.yaml на сервер: scp .\docker-compose.csv gcp:~/docker/mongo
+   ```yaml
+   version: '3.3'
+
+   services:
+      mongodb:
+          image: mongo:5.0.4
+          restart: always
+          environment:
+              MONGO_INITDB_ROOT_USERNAME: root
+              MONGO_INITDB_ROOT_PASSWORD: otus$$123
+          volumes:
+            - /home/dinora_ianbarisova/docker/mongo/db:/data/db
+          ports:
+            - 27017:27017
+   ```
+4) Поднимаем контейнер с MongoDB: sudo docker-compose up -d
+5) Открываем порты (27001, 27017) на виртуалке в настройках firewall проекта в GCP
+6) Теперь можно подключиться из сети напрямую к MongoDB, запущенном на севере и в docker-контейнере, по ip VM:
+   ```console
+   mongo 35.223.69.9:27001 -u root -p otus\$123 --authenticationDatabase admin
+   mongo 35.223.69.9:27017 -u root -p otus\$123 --authenticationDatabase admin
+   ```
