@@ -3,6 +3,7 @@
 ## Список домашних заданий
 1. [CAP теорема](#cap)
 2. [Варианты установки MongoDB](#install)
+3. [Базовые понятия MongoDB, CRUD, фильтры ](#base)
 
 ------
 ------
@@ -73,14 +74,17 @@ _<a name="cap"><h3>ДЗ 1: CAP теорема</h3></a>_
 -----
 -----
 
-_<a name="cap"><h3>ДЗ 2: Варианты установки MongoDB</h3></a>_
+_<a name="install"><h3>ДЗ 2: Варианты установки MongoDB</h3></a>_
+_Ход выполнения:_
 
 ### Создание и настройка среды в Google Cloud Platform
 
-1. Был создан проект в Google Cloud Platform: **mongodb2021-19930326**
+1. Был создан проект в Google Cloud Platform: [**mongodb2021-19930326**](https://console.cloud.google.com/compute/instances?authuser=1&orgonly=true&project=otus-edu&supportedpurview=organizationId)
 2. Установлен на рабочей машине **gcloud**
-3. Подключение инстанса VM через gcloud beta compute к созданному проекту (ОС Ubuntu 20.04)
-4. ssh ключ был автоматически подгружен в метадату GCP и на виртуальную машину + добавлена настройка алиаса gcp для быстрого подключения к виртуальной машине через ssh
+3. Подключение инстанса VM (ОС Ubuntu 20.04) к созданному проекту через gcloud beta compute
+4. Для подключения к виртуальной машине используем коменда ssh gcp :
+   - ssh- ключ был автоматически подгружен в метадату GCP и на саму виртуальную машину при подключении VM инстанса через gcloud
+   - добавлен алиас gcp
 
 ### Установка инстанса **Mongodb v4.4** :
 1) Загрузка и установка стабильной версиии пакета MongoDB:
@@ -91,11 +95,11 @@ _<a name="cap"><h3>ДЗ 2: Варианты установки MongoDB</h3></a>_
    ```console
    sudo mkdir /home/dinora_ianbarisova/mongo && sudo mkdir /home/dinora_ianbarisova/mongo/db1 && sudo chmod 777 /home/dinora_ianbarisova/mongo/db1
    ```
-3) Делаем форк демона MongoDB:
+3) Форк демона MongoDB:
    ```console
    mongod --dbpath /home/dinora_ianbarisova/mongo/db1 --port 27001 --fork --logpath /home/dinora_ianbarisova/mongo/db1/db1.log --pidfilepath /home.dinora_ianbarisova/mongo/db1/db1.pid
    ``` 
-4) Подключение к БД командой:
+4) Подключение к БД:
    ```console
    mongo --port 27001
    ```
@@ -108,13 +112,13 @@ _<a name="cap"><h3>ДЗ 2: Варианты установки MongoDB</h3></a>_
    ```console
    mongod --dbpath /home/mongo/db1 --port 27001 --fork --logpath /home/mongo/db1/db1.log --pidfilepath /home/mongo/db1/db1.pid --bind_ip_all --auth
    ```
-7) Теперь для подключения к текущему сервису монги необходимо использовать команду:
+7) Команда для подключения к текущему сервису монги:
    ```console
    mongo -u root -p otus\$123 --authenticationDatabase admin --port 27001
    ```
 ### Запуск **MongoDB v5.0** в docker-контейнере
 
-1) Установка докера:
+1) Установка docker:
    ```console
    sudo apt-get update && sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && sudo apt-key fingerprint 0EBFCD88 && sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io
    ```
@@ -122,7 +126,7 @@ _<a name="cap"><h3>ДЗ 2: Варианты установки MongoDB</h3></a>_
    ```console
    sudo apt install docker-compose -u
    ```
-3) Скопировала файл docker-compose.yaml на сервер: scp .\docker-compose.csv gcp:~/docker/mongo
+3) Копирование файл docker-compose.yaml на сервер: scp .\docker-compose.csv gcp:~/docker/mongo
    ```yaml
    version: '3.3'
 
@@ -138,10 +142,60 @@ _<a name="cap"><h3>ДЗ 2: Варианты установки MongoDB</h3></a>_
           ports:
             - 27017:27017
    ```
-4) Поднимаем контейнер с MongoDB: sudo docker-compose up -d
+4) Запуск контейнера с MongoDB: sudo docker-compose up -d
 5) Открываем порты (27001, 27017) на виртуалке в настройках firewall проекта в GCP
 6) Теперь можно подключиться из сети напрямую к MongoDB, запущенном на севере и в docker-контейнере, по ip VM:
    ```console
-   mongo 35.223.69.9:27001 -u root -p otus\$123 --authenticationDatabase admin
-   mongo 35.223.69.9:27017 -u root -p otus\$123 --authenticationDatabase admin
+   mongo 34.88.161.216:27001 -u root -p otus\$123 --authenticationDatabase admin
+   mongo 34.88.161.216:27017 -u root -p otus\$123 --authenticationDatabase admin
    ```
+
+-----
+-----
+
+_<a name="base"><h3>ДЗ 3: Базовые понятия MongoDB, CRUD, фильтры</h3></a>_
+_Ход выполнения:_
+
+1. Копирование датасета на сервер:
+   ```console
+   scp .\books.csv gcp:~/hw/hw3
+   ````
+2. Импорт данных при помощи команды mongoimport:
+   ```console
+   mongoimport --type=json --file=books.json -d test_db -c books -u root -p otus\$123 --authenticationDatabase admin mongodb://localhost:27017
+   ```
+3. Примеры выполненных запросов:
+   READ:
+   1) ```console
+      db.books.find( { "publishedDate" : { $gte : ISODate("2013-12-12T23:59:59.999Z") }},  {"title" : 1}).count() 
+      ```
+      [Result](hw3/result1.json)
+   2) ```console
+      db.books.distinct('authors.2', {$or: [ {$or: [{pageCount: {$lt :200}}, {pageCount :{$gt: 600}}]}, {status: 'MEAP'}]})
+      ```
+      [Result](hw3/result2.json)
+   3) ```console
+      db.books.createIndex({"title": "text"})
+      db.books.find({'$text': { '$search': "Java"}}, fields=( { '_id': 0, 'title': 1, 'score': { '$meta': 'textScore' }} )).sort({score: { '$meta' : "textScore"}})
+      ```
+      [Result](hw3/result3.json)
+
+   UPDATE:
+   1) ```console
+      db.books.updateMany({"status": 'PUBLISH'}, {$set: {profit: Math.random()*100}, $setOnInsert: {application: 'yes'}}, {upsert: true})
+      ```
+      [Result](hw3/result4.json)
+   2) ```console
+      db.books.update({}, {$set: {"authors.$[element]": 'Ianbarisova Dinora'}}, {multi: true, arrayFilters: [{"element": {$eq: ""}}]})
+      ```
+      [Result](hw3/result5.json)
+
+   DELETE:
+   1) ```console
+      db.books.deleteMany( {'categories' : 'PHP'})
+      ```
+      [Result](hw3/result6.json)
+   2) ```console
+      db.books.findOneAndDelete( {'categories' : 'Perl'})
+      ```
+      [Result](hw3/result7.json)

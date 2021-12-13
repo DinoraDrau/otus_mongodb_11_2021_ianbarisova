@@ -1,0 +1,44 @@
+{ "title" : "Bitter Java", "score" : 0.75 }
+{ "title" : "Play for Java", "score" : 0.75 }
+{ "title" : "Flex on Java", "score" : 0.75 }
+{ "title" : "Java Development with Ant", "score" : 0.6666666666666666 }
+{ "title" : "Java Reflection in Action", "score" : 0.6666666666666666 }
+{ "title" : "Instant Messaging in Java", "score" : 0.6666666666666666 }
+{ "title" : "Making Java Groovy", "score" : 0.6666666666666666 }
+{ "title" : "Java 8 in Action", "score" : 0.6666666666666666 }
+{ "title" : "Java Persistence with Hibernate", "score" : 0.6666666666666666 }
+{ "title" : "Making Sense of Java", "score" : 0.6666666666666666 }
+{
+	"title" : "Distributed Programming with Java",
+	"score" : 0.6666666666666666
+}
+{ "title" : "Domino Development with Java", "score" : 0.6666666666666666 }
+{ "title" : "Java 3D Programming", "score" : 0.6666666666666666 }
+{ "title" : "Java Foundation Classes", "score" : 0.6666666666666666 }
+{ "title" : "Java Servlets by Example", "score" : 0.6666666666666666 }
+{ "title" : "The Awesome Power of Java Beans", "score" : 0.625 }
+{ "title" : "Art of Java Web Development", "score" : 0.625 }
+{ "title" : "Java 2 Micro Edition", "score" : 0.625 }
+{ "title" : "The Well-Grounded Java Developer", "score" : 0.625 }
+{ "title" : "Server-Based Java Programming", "score" : 0.625 }
+{ "title" : "Programming Web Services with Java", "score" : 0.625 }
+{
+	"title" : "Java Persistence with Hibernate, Second Edition",
+	"score" : 0.6
+}
+{ "title" : "Java Network Programming, Second Edition", "score" : 0.6 }
+{ "title" : "Java Applets and Channels Without Programming", "score" : 0.6 }
+{ "title" : "3D User Interfaces with Java 3D", "score" : 0.6 }
+{ "title" : "Enhancing Java Core Libraries with Collections", "score" : 0.6 }
+{
+	"title" : "Enhancing Java Core Libraries with BeanUtils and Lang",
+	"score" : 0.5833333333333334
+}
+{
+	"title" : "OCA Java SE 7 Programmer I Certification Guide",
+	"score" : 0.5714285714285714
+}
+{
+	"title" : "OCP Java SE 7 Programmer II Certification Guide",
+	"score" : 0.5625
+}
